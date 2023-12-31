@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="video" default="/home/allan/Documentos/bk_allan_20231215/Allan/images_husky.mp4" />
+    <arg name="image_topic" default="/image_publisher/image_raw" />
+
+    <node name="image_publisher" pkg="image_publisher" type="image_publisher" output="screen"
+        args="$(arg video) _image_topic:=$(arg image_topic)" />
+
+
+    <node name="prediction_node" pkg="prediction" type="prediction.py" output="screen">
+        <param name="topic_name" value="$(arg image_topic)" />
+    </node>
+    <node pkg="opencv101" type="opencv101_node" name="image_converter_cpp" />
+
+
+</launch>
