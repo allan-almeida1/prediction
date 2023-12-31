@@ -1,8 +1,24 @@
 # Transfer Learning-based Lane Line Detection System for Visual Path Following Control
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Introduction
 
 This repository contains the code for the ROS package `prediction` which is used to detect a path from a camera image.
+
+## Dependencies
+
+[![ROS](https://img.shields.io/badge/ROS-Noetic-blue)](http://wiki.ros.org/noetic/Installation)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.13.1-orange)](https://www.tensorflow.org/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-4.8.1-green)](https://opencv.org/)
+[![NumPy](https://img.shields.io/badge/NumPy-1.23.5-yellowgreen)](https://numpy.org/)
+
+The package depends on the following libraries:
+
+- [ROS](http://wiki.ros.org/ROS/Installation)
+- [TensorFlow](https://www.tensorflow.org/install)
+- [OpenCV](https://opencv.org/)
+- [NumPy](https://numpy.org/)
 
 ## Installation
 
