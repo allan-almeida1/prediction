@@ -167,6 +167,12 @@ std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coeffic
 
 void Processing::drawCurve(const std::vector<cv::Point> &points, cv::Mat &image)
 {
+    Eigen::VectorXd idx = Eigen::VectorXd::LinSpaced(8, 0, points.size() - 1);
+    Eigen::VectorXi indices = idx.cast<int>();
+    for (int i = 0; i < indices.size(); ++i)
+    {
+        cv::circle(image, points.at(indices[i]), 1, cv::Scalar(0, 0, 255), 2);
+    }
     std::vector<std::vector<cv::Point>> polylines{points};
     cv::polylines(image, polylines, false, cv::Scalar(255, 0, 0), 1);
     cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
