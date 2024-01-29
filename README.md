@@ -1,6 +1,16 @@
-# Transfer Learning-based Lane Line Detection System for Visual Path Following Control
+<h2 align="center">
+<img src="image.png"/><br/><br/>
+Transfer Learning-based Lane Line Detection System for Visual Path Following Control
+</h2>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<h4 align="center">
+    <a href="#introduction">Introduction</a> |
+    <a href="#dependencies">Dependencies</a> |
+    <a href="#installation">Installation</a> |
+    <a href="#nodes">Nodes</a> |
+    <a href="#launch-files">Launch Files</a> |
+    <a href="#gpu-support">GPU Support</a>
+</h4>
 
 ## Introduction
 
