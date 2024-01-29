@@ -90,7 +90,7 @@ class Prediction:
         input_tensor = np.expand_dims(image, axis=0)
         input_tensor = tf.convert_to_tensor(input_tensor)
         mask_image = self.frozen_model(input_tensor)[0][0]
-        rospy.loginfo(f'Prediction time (ms): {(time.time() - initial_time)*1000}')
+        rospy.loginfo(f'Prediction time (ms): {round((time.time() - initial_time)*1000, 4)}')
         mask_np = mask_image.numpy()
         mask_np = np.uint8(mask_np * 255)
         mask_np = cv2.resize(mask_np, (640, 360))
