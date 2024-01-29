@@ -1,7 +1,7 @@
-<h2 align="center">
+<h1 align="center">
 <img src="image.png"/><br/><br/>
 Transfer Learning-based Lane Line Detection System for Visual Path Following Control
-</h2>
+</h1>
 
 <h4 align="center">
     <a href="#introduction">Introduction</a> |
