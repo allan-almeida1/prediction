@@ -4,7 +4,7 @@ ProcessingNode::ProcessingNode(ros::NodeHandle *nh)
 {
     this->processing = Processing();
     this->img_sub = nh->subscribe("/image_raw_bin", 100, &ProcessingNode::imageCallback, this);
-    this->window_size = 5;
+    this->window_size = 7;
 }
 
 ProcessingNode::~ProcessingNode() {}

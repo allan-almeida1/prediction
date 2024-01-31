@@ -39,14 +39,15 @@ class Prediction:
         self.topic_name = rospy.get_param("/prediction_node/topic_name", "/camera/image")
         rospy.loginfo(f"Subscribing to {self.topic_name}")
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber(
-            self.topic_name, Image, self.image_callback)
-        self.image_pub = rospy.Publisher(
-            "/image_raw_bin", Image, queue_size=10)
         
         self.check_gpu()
         self.load_model()
         self.frozen_model = freeze_model(self.model)
+
+        self.image_pub = rospy.Publisher(
+            "/image_raw_bin", Image, queue_size=10)
+        self.image_sub = rospy.Subscriber(
+            self.topic_name, Image, self.image_callback)
         
         rospy.loginfo("Prediction node ready")
         
