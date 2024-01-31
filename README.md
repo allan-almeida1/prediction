@@ -83,7 +83,7 @@ roslaunch prediction unity.launch
 
 ## Parameters
 
-To adjust the parameters related to the processing node, edit the file `config/processing.yml`. Parameters are explained in the following table:
+To adjust the parameters related to the processing node, edit the file `config/processing_params.yml`. Parameters are explained in the following table:
 
 | Parameter | Description | Default Value |
 | --- | --- | --- |
