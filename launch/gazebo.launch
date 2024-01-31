@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="image_topic" default="/realsense/color/image_raw" />
+
+    <node name="prediction_node" pkg="prediction" type="prediction.py" output="screen">
+        <param name="topic_name" value="$(arg image_topic)" />
+    </node>
+    <node pkg="opencv101" type="opencv101_node" name="image_converter_cpp" />
+    <node pkg="prediction" type="processing" name="processing" output="screen" />
+
+
+</launch>

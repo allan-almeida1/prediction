@@ -65,7 +65,7 @@ The package contains the following nodes:
 
 - **prediction.py**: This node is used to detect a path from a camera image. It subscribes to the topic defined by param `/prediction_node/topic_name` and runs semantic segmentation on the image using an adapted version of the ERFNet model. The node then publishes the binary image to the topic `/image_raw_bin`.
 
-- **processing**: This node is used to process the binary image published by the `prediction` node. It subscribes to the topic `/image_raw_bin` and runs processing steps like normalization, clustering and polynomial fitting on the image.
+- **processing**: This node is used to process the binary image published by the `prediction` node. It subscribes to the topic `/image_raw_bin` and runs processing steps like normalization polynomial fitting on the image using RANSAC algorithm.
 
 ## Launch Files
 

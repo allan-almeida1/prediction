@@ -4,6 +4,7 @@ ProcessingNode::ProcessingNode(ros::NodeHandle *nh)
 {
     this->processing = Processing();
     this->img_sub = nh->subscribe("/image_raw_bin", 100, &ProcessingNode::imageCallback, this);
+    this->window_size = 5;
 }
 
 ProcessingNode::~ProcessingNode() {}
@@ -27,15 +28,37 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
 
     processing.binarize(image);
 
-    std::vector<cv::Point> coords = processing.findActivePixels(image);
+    std::vector<cv::Point> coordinates = processing.findActivePixels(image);
 
-    arma::mat best_cluster = processing.dbscan(coords, 3.0, 10UL);
+    if (coordinates.size() != 0)
+    {
+        // Fit a second order polynomial to data using RANSAC
+        Eigen::VectorXd coefficients = processing.ransacFit(coordinates, 3, 10, 200);
 
-    Eigen::VectorXd coefficients = processing.leastSquaresFit(best_cluster);
+        // Append coefficients to vector for average calculation
+        ransac_results.push_back(coefficients);
 
-    std::vector<cv::Point> points = processing.calculateCurve(coefficients, best_cluster, 20);
+        if (ransac_results.size() > window_size)
+        {
+            ransac_results.pop_front();
+        }
 
-    processing.stopTimer("Processing step");
+        // Calculate mean
+        Eigen::VectorXd filtered_coefficients = Eigen::VectorXd::Zero(3);
+        for (uint16_t i = 0; i < ransac_results.size(); ++i)
+        {
+            filtered_coefficients += ransac_results[i];
+        }
+        filtered_coefficients /= ransac_results.size();
 
-    processing.drawCurve(points, original_img);
+        std::vector<cv::Point> points = processing.calculateCurve(filtered_coefficients, 20);
+
+        processing.stopTimer("Processing step");
+
+        processing.drawCurve(points, original_img);
+    }
+    else
+    {
+        processing.stopTimer("Processing step");
+    }
 }

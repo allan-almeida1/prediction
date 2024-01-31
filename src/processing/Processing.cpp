@@ -127,26 +127,103 @@ void Processing::drawCluster(const arma::mat &cluster)
     cv::waitKey(1);
 }
 
-Eigen::VectorXd Processing::leastSquaresFit(const arma::mat &data)
+Eigen::VectorXd Processing::leastSquaresFit(const std::vector<cv::Point> &coordinates)
 {
-
-    Eigen::MatrixXd A(data.n_cols, 3);
-    Eigen::VectorXd y(data.n_cols);
-    for (arma::uword i = 0; i < data.n_cols; ++i)
+    Eigen::MatrixXd A(coordinates.size(), 3);
+    Eigen::VectorXd x(coordinates.size());
+    for (uint16_t i = 0; i < coordinates.size(); ++i)
     {
-        double x = data(1, i);
+        double y = coordinates[i].y;
         A(i, 0) = 1.0;
-        A(i, 1) = x;
-        A(i, 2) = x * x;
-        y(i) = data(0, i);
+        A(i, 1) = y;
+        A(i, 2) = std::pow(y, 2);
+        x(i) = coordinates[i].x;
     }
-    return A.colPivHouseholderQr().solve(y);
+    return A.colPivHouseholderQr().solve(x);
 }
 
-std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coefficients, const arma::mat &dataset, const uint16_t &n_points)
+Eigen::VectorXd Processing::ransacFit(const std::vector<cv::Point> &coordinates, const int &min_samples, const int &threshold, const int &max_iterations)
 {
-    double max_y = dataset.row(1).max();
-    double min_y = dataset.row(1).min();
+    // Seed the random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    Eigen::VectorXd best_model = Eigen::VectorXd::Zero(3);
+    std::vector<cv::Point> best_inliers;
+    std::vector<cv::Point> picked_samples;
+    std::vector<int> picked_indexes;
+    int data_len = coordinates.size();
+    std::uniform_int_distribution<int> dist(0, data_len - 1);
+
+    for (uint16_t iter = 0; iter < max_iterations; ++iter)
+    {
+        // Pick `min_samples` random samples from given data
+        if (picked_indexes.size() > 0)
+        {
+            picked_indexes.clear();
+            picked_samples.clear();
+        }
+        while (picked_indexes.size() < min_samples)
+        {
+            int random_index = dist(gen);
+            if (!std::binary_search(picked_indexes.begin(), picked_indexes.end(), random_index))
+            {
+                picked_indexes.push_back(random_index);
+                picked_samples.push_back(coordinates[random_index]);
+            }
+        }
+        Eigen::VectorXd model = Processing::leastSquaresFit(picked_samples);
+        std::vector<cv::Point> inliers = Processing::findInliers(coordinates, model, threshold);
+        if (inliers.size() > best_inliers.size())
+        {
+            best_inliers = inliers;
+            best_model = model;
+            // Skip criteria (90% of points are inliers)
+            if (inliers.size() >= (data_len * 0.9))
+            {
+                if (VERBOSE)
+                {
+                    std::cout << "Found a good model with "
+                              << (inliers.size() * 100 / data_len)
+                              << " %% of inliers after " << iter
+                              << " iterations" << std::endl;
+                }
+                break;
+            }
+        }
+    }
+    return best_model;
+}
+
+std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coefficients, const uint16_t &n_points)
+{
+    int16_t min_y = 0;
+    int16_t max_y;
+
+    // Calculate curve y limits
+
+    // From bottom of the image, go upwards until x coordinate is within range (0, width)
+    for (int16_t i = this->resolution.second; i > 0; --i)
+    {
+        double ans = coefficients[0] + coefficients[1] * i + coefficients[2] * i * i;
+        if (ans > 0 && ans < this->resolution.first)
+        {
+            max_y = i;
+            break;
+        }
+    }
+
+    // From top of the image, go downwards until x coordinate is within range (0, width)
+    for (int16_t i = 0; i < this->resolution.second; ++i)
+    {
+        double ans = coefficients[0] + coefficients[1] * i + coefficients[2] * i * i;
+        if (ans > 0 && ans < this->resolution.first)
+        {
+            min_y = i;
+            break;
+        }
+    }
+
     Eigen::VectorXd x = Eigen::VectorXd::LinSpaced(n_points, min_y, max_y);
     Eigen::VectorXd y = coefficients[0] * Eigen::VectorXd::Ones(x.size()) +
                         coefficients[1] * x +
@@ -191,5 +268,22 @@ void Processing::stopTimer(const char *description)
     this->end = std::chrono::high_resolution_clock::now();
     std::chrono::microseconds duration = std::chrono::duration_cast<std::chrono::microseconds>(this->end - this->start);
     ROS_INFO("%s time (ms): %4f", description, (float)duration.count() / 1000);
-    // std::cout << description << " took " << ((float)duration.count() / 1000) << " milliseconds" << std::endl;
+}
+
+/*------------------------------------*/
+/* -------- PRIVATE METHODS --------- */
+/*------------------------------------*/
+
+std::vector<cv::Point> Processing::findInliers(const std::vector<cv::Point> &coordinates, const Eigen::VectorXd &model, const int &threshold)
+{
+    std::vector<cv::Point> inliers;
+    for (uint32_t i = 0; i < coordinates.size(); ++i)
+    {
+        float predicted_value = model[0] + model[1] * coordinates[i].y + model[2] * std::pow(coordinates[i].y, 2);
+        if (std::abs(coordinates[i].x - predicted_value) <= threshold)
+        {
+            inliers.push_back(coordinates[i]);
+        }
+    }
+    return inliers;
 }

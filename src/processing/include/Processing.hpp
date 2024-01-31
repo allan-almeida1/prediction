@@ -77,24 +77,35 @@ public:
     void drawCluster(const arma::mat &cluster);
 
     /**
-     * @brief Fit a second-order polynomial to data and return the coefficients
+     * @brief Fit a second-order polynomial to data points and return the coefficients
      *
-     * @param data Data to fit
+     * @param coordinates A vector with coordinates (x, y) of white pixels
      *
      * @return Eigen::VectorXd containing 3 coefficients [a0 a1 a2]
      */
-    Eigen::VectorXd leastSquaresFit(const arma::mat &data);
+    Eigen::VectorXd leastSquaresFit(const std::vector<cv::Point> &coordinates);
+
+    /**
+     * @brief Fit a second order polynomial to data points using RANSAC algorithm and return the coefficients
+     *
+     * @param coordinates A vector with cordinates (x, y) of white pixels
+     * @param min_samples Minimum number of samples chosen randomly from data
+     * @param threshold Maximum distance for a sample to be considered an inlier
+     * @param max_iterations Maximum number of iterations for random sample selection
+     *
+     * @return Eigen::VectorXd containing 3 coefficients [a0 a1 a2]
+     */
+    Eigen::VectorXd ransacFit(const std::vector<cv::Point> &coordinates, const int &min_samples, const int &threshold, const int &max_iterations);
 
     /**
      * @brief Calculate the points to be drawn and return the coordinates
      *
      * @param coefficients Vector with the 3 coefficients [a0 a1 a2]
-     * @param dataset The arma::mat with the cluster to calculate curve limits
      * @param n_points Number of points to be generated in the vector
      *
      * @return A vector with the coordinates of the points to be drawn
      */
-    std::vector<cv::Point> calculateCurve(const Eigen::VectorXd &coefficients, const arma::mat &dataset, const uint16_t &n_points = 10);
+    std::vector<cv::Point> calculateCurve(const Eigen::VectorXd &coefficients, const uint16_t &n_points = 10);
 
     /**
      * @brief Draw the curve along with the original image
@@ -117,10 +128,21 @@ public:
     void stopTimer(const char *description = "");
 
 private:
-    std::chrono::_V2::system_clock::time_point start;
-    std::chrono::_V2::system_clock::time_point end;
-    std::pair<uint32_t, uint32_t> resolution;
+    std::chrono::_V2::system_clock::time_point start; // start time for duration calculation
+    std::chrono::_V2::system_clock::time_point end;   // end time for duration calculation
+    std::pair<uint32_t, uint32_t> resolution;         // image resolution (width x height)
     bool VERBOSE;
+
+    /**
+     * @brief Calculates the error between data points and the estimated polynomial and find inliers
+     *
+     * @param coordinates A vector with data points (x, y)
+     * @param model Polynomial coefficients [a0 a1 a2]
+     * @param threshold Maximum distance for a sample to be considered an inlier
+     *
+     * @returns Vector with inliers
+     */
+    std::vector<cv::Point> findInliers(const std::vector<cv::Point> &coordinates, const Eigen::VectorXd &model, const int &threshold);
 };
 
 #endif // DBSCAN_H
