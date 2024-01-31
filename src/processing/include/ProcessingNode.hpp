@@ -1,9 +1,17 @@
+/**
+ * @author Allan Souza Almeida
+ * @date Jan 31 2024
+ */
+
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <cv_bridge/cv_bridge.h>
 #include <deque>
 #include "Processing.hpp"
 
+/**
+ * @brief This class is responsible for processing a binary image coming from a topic
+ */
 class ProcessingNode
 {
 public:

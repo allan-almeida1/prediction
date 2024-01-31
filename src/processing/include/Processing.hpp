@@ -1,3 +1,8 @@
+/**
+ * @author Allan Souza Almeida
+ * @date Jan 31 2024
+ */
+
 #pragma once
 #ifndef DBSCAN_H
 #define DBSCAN_h
@@ -12,6 +17,9 @@
 #include <eigen3/Eigen/Dense>
 #include <ros/ros.h>
 
+/**
+ * @brief This class implements several methods to process a binary image containing lane lines
+ */
 class Processing
 {
 public:
