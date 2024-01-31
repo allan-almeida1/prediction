@@ -43,7 +43,7 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
             ransac_results.pop_front();
         }
 
-        // Calculate mean
+        // Calculate average
         Eigen::VectorXd filtered_coefficients = Eigen::VectorXd::Zero(3);
         for (uint16_t i = 0; i < ransac_results.size(); ++i)
         {
@@ -51,7 +51,8 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
         }
         filtered_coefficients /= ransac_results.size();
 
-        std::vector<cv::Point> points = processing.calculateCurve(filtered_coefficients, 20);
+        // Calculate points to draw the curve
+        std::vector<cv::Point> points = processing.calculateCurve(filtered_coefficients, 8);
 
         processing.stopTimer("Processing step");
 
