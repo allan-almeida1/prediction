@@ -1,0 +1,6 @@
+processing:
+  window_size: 8 # Number of frames window to calculate moving average for RANSAC
+  min_samples: 3 # Minimum number of samples to fit a model
+  threshold: 10 # Maximum residual for a data sample to be classified as an inlier
+  max_iterations: 200 # Maximum number of iterations for RANSAC
+  n_points: 8 # Number of points used to draw the curve for the lane

@@ -6,6 +6,9 @@
         <param name="topic_name" value="$(arg image_topic)" />
     </node>
     <!-- <node pkg="opencv101" type="opencv101_node" name="image_converter_cpp" /> -->
+
+    <rosparam command="load" file="$(find prediction)/config/processing_params.yml" />
+
     <node pkg="prediction" type="processing" name="processing" output="screen" />
 
 

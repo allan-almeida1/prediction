@@ -81,6 +81,18 @@ To run the package on a ROS topic in the simulation environment, use the followi
 roslaunch prediction unity.launch
 ```
 
+# Parameters
+
+To adjust the parameters related to the processing node, edit the file `config/processing.yml`. Parameters are explained in the following table:
+
+| Parameter | Description | Default Value |
+| --- | --- | --- |
+| `processing/window_size` | Number of frames window to calculate moving average for RANSAC | 8 |
+| `processing/min_samples` | Minimum number of samples required to fit a polynomial | 3 |
+| `processing/threshold` | Maximum distance from the fitted polynomial for a sample to be considered as an inlier | 10 |
+| `processing/max_iterations` | Maximum number of iterations for RANSAC | 200 |
+
+
 ## GPU Support
 
 To enable GPU support, you need to install the CUDA Toolkit and cuDNN. Then, you need to install the GPU version of TensorFlow. A script was created to automate this process and create a virtual conda environment with everything set up. To use it, run the following command:

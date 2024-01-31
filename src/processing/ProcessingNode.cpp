@@ -2,9 +2,14 @@
 
 ProcessingNode::ProcessingNode(ros::NodeHandle *nh)
 {
+    this->nh = nh;
     this->processing = Processing();
     this->img_sub = nh->subscribe("/image_raw_bin", 100, &ProcessingNode::imageCallback, this);
-    this->window_size = 7;
+    nh->param("/processing/window_size", this->window_size, 7);
+    nh->param("/processing/n_points", this->n_points, 8);
+    nh->param("/processing/min_samples", this->min_samples, 3);
+    nh->param("/processing/threshold", this->threshold, 10);
+    nh->param("/processing/max_iterations", this->max_iterations, 200);
 }
 
 ProcessingNode::~ProcessingNode() {}
@@ -33,12 +38,12 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
     if (coordinates.size() != 0)
     {
         // Fit a second order polynomial to data using RANSAC
-        Eigen::VectorXd coefficients = processing.ransacFit(coordinates, 3, 10, 200);
+        Eigen::VectorXd coefficients = processing.ransacFit(coordinates, this->min_samples, this->threshold, this->max_iterations);
 
         // Append coefficients to vector for average calculation
         ransac_results.push_back(coefficients);
 
-        if (ransac_results.size() > window_size)
+        if (ransac_results.size() > this->window_size)
         {
             ransac_results.pop_front();
         }
@@ -52,7 +57,7 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
         filtered_coefficients /= ransac_results.size();
 
         // Calculate points to draw the curve
-        std::vector<cv::Point> points = processing.calculateCurve(filtered_coefficients, 8);
+        std::vector<cv::Point> points = processing.calculateCurve(filtered_coefficients, this->n_points);
 
         processing.stopTimer("Processing step");
 
