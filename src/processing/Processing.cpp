@@ -4,6 +4,7 @@ Processing::Processing(std::pair<uint32_t, uint32_t> resolution, bool verbose)
 {
     this->resolution = resolution;
     this->VERBOSE = verbose;
+    this->gen = std::mt19937(this->rd());
 }
 Processing::~Processing() {}
 
@@ -127,26 +128,25 @@ void Processing::drawCluster(const arma::mat &cluster)
     cv::waitKey(1);
 }
 
-Eigen::VectorXd Processing::leastSquaresFit(const std::vector<cv::Point> &coordinates)
+Eigen::VectorXd Processing::leastSquaresFit(const std::vector<cv::Point> &coordinates, const int &order)
 {
-    Eigen::MatrixXd A(coordinates.size(), 3);
+    Eigen::MatrixXd A(coordinates.size(), order + 1);
     Eigen::VectorXd x(coordinates.size());
     for (uint16_t i = 0; i < coordinates.size(); ++i)
     {
         double y = coordinates[i].y;
         A(i, 0) = 1.0;
-        A(i, 1) = y;
-        A(i, 2) = std::pow(y, 2);
+        for (uint16_t j = 1; j < order + 1; ++j)
+        {
+            A(i, j) = std::pow(y, j);
+        }
         x(i) = coordinates[i].x;
     }
     return A.colPivHouseholderQr().solve(x);
 }
 
-Eigen::VectorXd Processing::ransacFit(const std::vector<cv::Point> &coordinates, const int &min_samples, const int &threshold, const int &max_iterations)
+Eigen::VectorXd Processing::ransacFit(const std::vector<cv::Point> &coordinates, const int &order, const int &min_samples, const int &threshold, const int &max_iterations)
 {
-    // Seed the random number generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
 
     Eigen::VectorXd best_model = Eigen::VectorXd::Zero(3);
     std::vector<cv::Point> best_inliers;
@@ -155,6 +155,7 @@ Eigen::VectorXd Processing::ransacFit(const std::vector<cv::Point> &coordinates,
     int data_len = coordinates.size();
     std::uniform_int_distribution<int> dist(0, data_len - 1);
 
+#pragma omp parallel for shared(best_model, best_inliers) default(none) schedule(static) // Add OpenMP pragma for parallelization
     for (uint16_t iter = 0; iter < max_iterations; ++iter)
     {
         // Pick `min_samples` random samples from given data
@@ -172,27 +173,34 @@ Eigen::VectorXd Processing::ransacFit(const std::vector<cv::Point> &coordinates,
                 picked_samples.push_back(coordinates[random_index]);
             }
         }
-        Eigen::VectorXd model = Processing::leastSquaresFit(picked_samples);
+        Eigen::VectorXd model = Processing::leastSquaresFit(picked_samples, order);
         std::vector<cv::Point> inliers = Processing::findInliers(coordinates, model, threshold);
-        if (inliers.size() > best_inliers.size())
+#pragma omp critical
         {
-            best_inliers = inliers;
-            best_model = model;
-            // Skip criteria (90% of points are inliers)
-            if (inliers.size() >= (data_len * 0.9))
+            if (inliers.size() > best_inliers.size())
             {
-                if (VERBOSE)
+                best_inliers = inliers;
+                best_model = model;
+                // Skip criteria (90% of points are inliers)
+                if (inliers.size() >= (data_len * 0.9))
                 {
-                    std::cout << "Found a good model with "
-                              << (inliers.size() * 100 / data_len)
-                              << " %% of inliers after " << iter
-                              << " iterations" << std::endl;
+                    if (VERBOSE)
+                    {
+                        std::cout << "Found a good model with "
+                                  << (inliers.size() * 100 / data_len)
+                                  << " %% of inliers after " << iter
+                                  << " iterations" << std::endl;
+                    }
+                    break;
                 }
-                break;
             }
         }
     }
-    return best_model;
+
+    Eigen::VectorXd post_ransac_best_model = Processing::leastSquaresFit(best_inliers, order);
+
+    // return best_model;
+    return post_ransac_best_model;
 }
 
 std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coefficients, const uint16_t &n_points)
@@ -205,7 +213,11 @@ std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coeffic
     // From bottom of the image, go upwards until x coordinate is within range (0, width)
     for (int16_t i = this->resolution.second; i > 0; --i)
     {
-        double ans = coefficients[0] + coefficients[1] * i + coefficients[2] * i * i;
+        double ans = 0;
+        for (int16_t j = 0; j < coefficients.size(); ++j)
+        {
+            ans += coefficients[j] * std::pow(i, j);
+        }
         if (ans > 0 && ans < this->resolution.first)
         {
             max_y = i;
@@ -216,7 +228,11 @@ std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coeffic
     // From top of the image, go downwards until x coordinate is within range (0, width)
     for (int16_t i = 0; i < this->resolution.second; ++i)
     {
-        double ans = coefficients[0] + coefficients[1] * i + coefficients[2] * i * i;
+        double ans = 0;
+        for (int16_t j = 0; j < coefficients.size(); ++j)
+        {
+            ans += coefficients[j] * std::pow(i, j);
+        }
         if (ans > 0 && ans < this->resolution.first)
         {
             min_y = i;
@@ -224,10 +240,12 @@ std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coeffic
         }
     }
 
-    Eigen::VectorXd x = Eigen::VectorXd::LinSpaced(n_points, min_y, max_y);
-    Eigen::VectorXd y = coefficients[0] * Eigen::VectorXd::Ones(x.size()) +
-                        coefficients[1] * x +
-                        coefficients[2] * x.cwiseProduct(x);
+    Eigen::VectorXd y = Eigen::VectorXd::LinSpaced(n_points, min_y, max_y);
+    Eigen::VectorXd x = Eigen::VectorXd::Zero(y.size());
+    for (int16_t i = 0; i < coefficients.size(); ++i)
+    {
+        x += coefficients[i] * (y.array().pow(i)).matrix();
+    }
     std::vector<cv::Point> points;
     for (size_t i = 0; i < n_points; ++i)
     {
@@ -237,21 +255,22 @@ std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coeffic
             x_px = 0;
         if (y_px < 0)
             y_px = 0;
-        points.push_back(cv::Point(y_px, x_px));
+        points.push_back(cv::Point(x_px, y_px));
     }
     return points;
 }
 
 void Processing::drawCurve(const std::vector<cv::Point> &points, cv::Mat &image)
 {
+    std::vector<std::vector<cv::Point>> polylines{points};
+    cv::polylines(image, polylines, false, cv::Scalar(255, 0, 0), 2);
     for (int i = 0; i < points.size(); ++i)
     {
         cv::circle(image, points.at(i), 2, cv::Scalar(0, 0, 255), 2);
     }
-    std::vector<std::vector<cv::Point>> polylines{points};
-    cv::polylines(image, polylines, false, cv::Scalar(255, 0, 0), 1);
     cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
-    cv::resize(image, image, cv::Size(640, 352));
+    cv::resize(image, image, cv::Size(640, 352), 0, 0, cv::INTER_LINEAR);
+    // cv::resize(image, image, cv::Size(480, 264));
     cv::imshow("Estimated curve", image);
     cv::waitKey(1);
 }
@@ -277,7 +296,11 @@ std::vector<cv::Point> Processing::findInliers(const std::vector<cv::Point> &coo
     std::vector<cv::Point> inliers;
     for (uint32_t i = 0; i < coordinates.size(); ++i)
     {
-        float predicted_value = model[0] + model[1] * coordinates[i].y + model[2] * std::pow(coordinates[i].y, 2);
+        float predicted_value = 0;
+        for (int16_t j = 0; j < model.size(); ++j)
+        {
+            predicted_value += model[j] * std::pow(coordinates[i].y, j);
+        }
         if (std::abs(coordinates[i].x - predicted_value) <= threshold)
         {
             inliers.push_back(coordinates[i]);

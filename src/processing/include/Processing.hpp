@@ -10,6 +10,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <random>
 #include <chrono>
 #include <opencv2/opencv.hpp>
 #include <mlpack/core.hpp>
@@ -91,7 +92,7 @@ public:
      *
      * @return Eigen::VectorXd containing 3 coefficients [a0 a1 a2]
      */
-    Eigen::VectorXd leastSquaresFit(const std::vector<cv::Point> &coordinates);
+    Eigen::VectorXd leastSquaresFit(const std::vector<cv::Point> &coordinates, const int &order);
 
     /**
      * @brief Fit a second order polynomial to data points using RANSAC algorithm and return the coefficients
@@ -103,7 +104,7 @@ public:
      *
      * @return Eigen::VectorXd containing 3 coefficients [a0 a1 a2]
      */
-    Eigen::VectorXd ransacFit(const std::vector<cv::Point> &coordinates, const int &min_samples, const int &threshold, const int &max_iterations);
+    Eigen::VectorXd ransacFit(const std::vector<cv::Point> &coordinates, const int &order, const int &min_samples, const int &threshold, const int &max_iterations);
 
     /**
      * @brief Calculate the points to be drawn and return the coordinates
@@ -140,6 +141,8 @@ private:
     std::chrono::_V2::system_clock::time_point end;   // end time for duration calculation
     std::pair<uint32_t, uint32_t> resolution;         // image resolution (width x height)
     bool VERBOSE;
+    std::random_device rd;
+    std::mt19937 gen;
 
     /**
      * @brief Calculates the error between data points and the estimated polynomial and find inliers

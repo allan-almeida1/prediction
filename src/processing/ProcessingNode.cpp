@@ -3,10 +3,11 @@
 ProcessingNode::ProcessingNode(ros::NodeHandle *nh)
 {
     this->nh = nh;
-    this->processing = Processing();
+    // this->processing = Processing();
     this->img_sub = nh->subscribe("/image_raw_bin", 100, &ProcessingNode::imageCallback, this);
     nh->param("/processing/window_size", this->window_size, 7);
     nh->param("/processing/n_points", this->n_points, 8);
+    nh->param("/processing/order", this->order, 2);
     nh->param("/processing/min_samples", this->min_samples, 3);
     nh->param("/processing/threshold", this->threshold, 10);
     nh->param("/processing/max_iterations", this->max_iterations, 200);
@@ -35,10 +36,11 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
 
     std::vector<cv::Point> coordinates = processing.findActivePixels(image);
 
-    if (coordinates.size() != 0)
+    if (coordinates.size() > 30)
     {
         // Fit a second order polynomial to data using RANSAC
-        Eigen::VectorXd coefficients = processing.ransacFit(coordinates, this->min_samples, this->threshold, this->max_iterations);
+        Eigen::VectorXd coefficients = processing.ransacFit(coordinates, this->order, this->min_samples, this->threshold, this->max_iterations);
+        // Eigen::VectorXd coefficients = processing.leastSquaresFit(coordinates, this->order);
 
         // Append coefficients to vector for average calculation
         ransac_results.push_back(coefficients);
@@ -49,7 +51,7 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
         }
 
         // Calculate average
-        Eigen::VectorXd filtered_coefficients = Eigen::VectorXd::Zero(3);
+        Eigen::VectorXd filtered_coefficients = Eigen::VectorXd::Zero(this->order + 1);
         for (uint16_t i = 0; i < ransac_results.size(); ++i)
         {
             filtered_coefficients += ransac_results[i];

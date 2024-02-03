@@ -30,6 +30,7 @@ private:
     ros::Subscriber img_sub; // Image topic subscriber
     Processing processing;
     int window_size;                            // Window size for moving average calculation (filter RANSAC)
+    int order;                                  // Polynomial order for RANSAC fitting
     int min_samples;                            // Minimum number of samples for RANSAC
     int threshold;                              // Maximum threshold for a sample to be considered an inlier
     int max_iterations;                         // Maximum number of iterations for RANSAC

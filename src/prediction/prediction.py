@@ -86,6 +86,9 @@ class Prediction:
         """
             
         initial_time = time.time()
+        if img is None:
+            rospy.logerr("Image is None")
+            return
         image = cv2.resize(img, self.resolution) / 255
         image = np.array(image, dtype=np.float32)
         input_tensor = np.expand_dims(image, axis=0)
