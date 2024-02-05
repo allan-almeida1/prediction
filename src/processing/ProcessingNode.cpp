@@ -5,6 +5,7 @@ ProcessingNode::ProcessingNode(ros::NodeHandle *nh)
     this->nh = nh;
     // this->processing = Processing();
     this->img_sub = nh->subscribe("/image_raw_bin", 100, &ProcessingNode::imageCallback, this);
+    this->path_pub = nh->advertise<prediction::Path>("/prediction/path", 100);
     nh->param("/processing/window_size", this->window_size, 7);
     nh->param("/processing/n_points", this->n_points, 8);
     nh->param("/processing/order", this->order, 2);
@@ -62,6 +63,11 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
         std::vector<cv::Point> points = processing.calculateCurve(filtered_coefficients, this->n_points);
 
         processing.stopTimer("Processing step");
+
+        // Get path info and publish to topic
+        prediction::Path path = processing.getPath();
+        path.Header.stamp = ros::Time::now();
+        path_pub.publish(path);
 
         processing.drawCurve(points, original_img);
     }

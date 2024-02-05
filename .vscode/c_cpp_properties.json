@@ -12,7 +12,8 @@
         "/home/allan/tiago_ws/src/opencv101/include/**",
         "/home/allan/tiago_ws/src/prediction/include/**",
         "/usr/include/**",
-        "${workspaceFolder}/src/processing/include"
+        "${workspaceFolder}/src/processing/include",
+        "${workspaceFolder}/devel/include"
       ],
       "name": "ROS",
       "intelliSenseMode": "gcc-x64",

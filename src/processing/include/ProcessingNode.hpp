@@ -28,6 +28,7 @@ public:
 private:
     ros::NodeHandle *nh;
     ros::Subscriber img_sub; // Image topic subscriber
+    ros::Publisher path_pub; // Path publisher
     Processing processing;
     int window_size;                            // Window size for moving average calculation (filter RANSAC)
     int order;                                  // Polynomial order for RANSAC fitting

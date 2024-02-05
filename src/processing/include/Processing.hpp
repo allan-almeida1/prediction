@@ -17,6 +17,7 @@
 #include <mlpack/methods/dbscan/dbscan.hpp>
 #include <eigen3/Eigen/Dense>
 #include <ros/ros.h>
+#include <prediction/Path.h>
 
 /**
  * @brief This class implements several methods to process a binary image containing lane lines
@@ -136,13 +137,23 @@ public:
      */
     void stopTimer(const char *description = "");
 
+    /**
+     * @brief Get the last path.
+     *
+     * @return prediction::Path containing image resolution, polynomial coefficients and y limits to plot the path
+     */
+    prediction::Path getPath();
+
 private:
     std::chrono::_V2::system_clock::time_point start; // start time for duration calculation
     std::chrono::_V2::system_clock::time_point end;   // end time for duration calculation
     std::pair<uint32_t, uint32_t> resolution;         // image resolution (width x height)
-    bool VERBOSE;
-    std::random_device rd;
-    std::mt19937 gen;
+    bool VERBOSE;                                     // Controls if details are logged to terminal
+    std::random_device rd;                            // Random device
+    std::mt19937 gen;                                 // Mersenne Twister pseudo random generator
+    float y_max;                                      // Max limit to plot the curve
+    float y_min;                                      // Min limit to plot the curve
+    Eigen::VectorXd best_model;                       // Coefficients for the best model [a0 a1 a2... an]
 
     /**
      * @brief Calculates the error between data points and the estimated polynomial and find inliers

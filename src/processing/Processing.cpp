@@ -198,8 +198,8 @@ Eigen::VectorXd Processing::ransacFit(const std::vector<cv::Point> &coordinates,
     }
 
     Eigen::VectorXd post_ransac_best_model = Processing::leastSquaresFit(best_inliers, order);
+    this->best_model = post_ransac_best_model;
 
-    // return best_model;
     return post_ransac_best_model;
 }
 
@@ -225,6 +225,8 @@ std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coeffic
         }
     }
 
+    this->y_max = max_y;
+
     // From top of the image, go downwards until x coordinate is within range (0, width)
     for (int16_t i = 0; i < this->resolution.second; ++i)
     {
@@ -239,6 +241,8 @@ std::vector<cv::Point> Processing::calculateCurve(const Eigen::VectorXd &coeffic
             break;
         }
     }
+
+    this->y_min = min_y;
 
     Eigen::VectorXd y = Eigen::VectorXd::LinSpaced(n_points, min_y, max_y);
     Eigen::VectorXd x = Eigen::VectorXd::Zero(y.size());
@@ -285,6 +289,20 @@ void Processing::stopTimer(const char *description)
     this->end = std::chrono::high_resolution_clock::now();
     std::chrono::microseconds duration = std::chrono::duration_cast<std::chrono::microseconds>(this->end - this->start);
     ROS_INFO("%s time (ms): %4f", description, (float)duration.count() / 1000);
+}
+
+prediction::Path Processing::getPath()
+{
+    prediction::Path path;
+    std::vector<double> coefficients(
+        this->best_model.data(),
+        this->best_model.data() + this->best_model.size());
+    path.coefficients = coefficients;
+    path.limits.y_max = this->y_max;
+    path.limits.y_min = this->y_min;
+    path.resolution.width = this->resolution.first;
+    path.resolution.height = this->resolution.second;
+    return path;
 }
 
 /*------------------------------------*/
