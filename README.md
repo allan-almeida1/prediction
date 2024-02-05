@@ -65,7 +65,7 @@ The package contains the following nodes:
 
 - **prediction.py**: This node is used to detect a path from a camera image. It subscribes to the topic defined by param `/prediction_node/topic_name` and runs semantic segmentation on the image using an adapted version of the ERFNet model. The node then publishes the binary image to the topic `/image_raw_bin`.
 
-- **processing**: This node is used to process the binary image published by the `prediction` node. It subscribes to the topic `/image_raw_bin` and runs processing steps like normalization polynomial fitting on the image using RANSAC algorithm.
+- **processing**: This node is used to process the binary image published by the `prediction` node. It subscribes to the topic `/image_raw_bin` and runs processing steps like normalization and polynomial fitting on the image using RANSAC algorithm. The node then publishes the polynomial coefficients, image resolution and y limits to the topic `/prediction/path`.
 
 ## Launch Files
 
@@ -87,10 +87,12 @@ To adjust the parameters related to the processing node, edit the file `config/p
 
 | Parameter | Description | Default Value |
 | --- | --- | --- |
-| `processing/window_size` | Number of frames window to calculate moving average for RANSAC | 8 |
-| `processing/min_samples` | Minimum number of samples required to fit a polynomial | 3 |
+| `processing/window_size` | Number of frames window to calculate moving average for RANSAC | 6 |
+| `processing/order` | Order of the polynomial to fit | 3 |
+| `processing/min_samples` | Minimum number of samples required to fit a polynomial (must be at least polynomial order + 1) | 4 |
 | `processing/threshold` | Maximum distance from the fitted polynomial for a sample to be considered as an inlier | 10 |
 | `processing/max_iterations` | Maximum number of iterations for RANSAC | 200 |
+| `processing/n_points` | Number of points used to draw the curve for the lane | 8 |
 
 
 ## GPU Support
