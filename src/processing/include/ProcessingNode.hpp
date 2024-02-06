@@ -3,6 +3,11 @@
  * @date Jan 31 2024
  */
 
+#pragma once
+
+#ifndef PROCESSING_NODE_HPP
+#define PROCESSING_NODE_HPP
+
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <cv_bridge/cv_bridge.h>
@@ -38,3 +43,5 @@ private:
     int n_points;                               // Number of points to draw the curve
     std::deque<Eigen::VectorXd> ransac_results; // Deque containing last RANSAC results
 };
+
+#endif // PROCESSING_NODE_HPP

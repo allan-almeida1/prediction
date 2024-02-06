@@ -133,6 +133,7 @@ catkin_package(
 include_directories(
 # include
   ${PROJECT_SOURCE_DIR}/src/processing/include
+  ${PROJECT_SOURCE_DIR}/src/state_estimation/include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
@@ -151,17 +152,30 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-set(SOURCES
+set(SOURCES_processing
   src/processing/Processing.cpp
   src/processing/ProcessingNode.cpp
   src/processing/main.cpp
 )
-set(HEADERS
+set(HEADERS_processing
   src/processing/include/Processing.hpp
   src/processing/include/ProcessingNode.hpp
 )
 
-add_executable(processing ${SOURCES} ${HEADERS})
+add_executable(processing ${SOURCES_processing} ${HEADERS_processing})
+
+set(SOURCES_state_estimation
+  src/state_estimation/StateEstimation.cpp
+  src/state_estimation/StateEstimationNode.cpp
+  src/state_estimation/main.cpp
+)
+
+set(HEADERS_state_estimation
+  src/state_estimation/include/StateEstimation.hpp
+  src/state_estimation/include/StateEstimationNode.hpp
+)
+
+add_executable(state_estimation ${SOURCES_state_estimation} ${HEADERS_state_estimation})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -177,6 +191,11 @@ add_executable(processing ${SOURCES} ${HEADERS})
 target_link_libraries(processing
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
+)
+
+target_link_libraries(state_estimation
+  ${catkin_LIBRARIES}
   ${EIGEN3_LIBRARIES}
 )
 

@@ -13,6 +13,7 @@
         "/home/allan/tiago_ws/src/prediction/include/**",
         "/usr/include/**",
         "${workspaceFolder}/src/processing/include",
+        "${workspaceFolder}/src/state_estimation/include",
         "${workspaceFolder}/devel/include"
       ],
       "name": "ROS",
