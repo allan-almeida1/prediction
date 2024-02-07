@@ -167,7 +167,7 @@ Eigen::VectorXd Processing::ransacFit(const std::vector<cv::Point> &coordinates,
         while (picked_indexes.size() < min_samples)
         {
             int random_index = dist(gen);
-            if (!std::binary_search(picked_indexes.begin(), picked_indexes.end(), random_index))
+            if (std::find(picked_indexes.begin(), picked_indexes.end(), random_index) == picked_indexes.end())
             {
                 picked_indexes.push_back(random_index);
                 picked_samples.push_back(coordinates[random_index]);
