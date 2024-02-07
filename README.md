@@ -81,6 +81,20 @@ To run the package on a ROS topic in the simulation environment, use the followi
 roslaunch prediction unity.launch
 ```
 
+## Unit Tests
+
+To run the unit tests, use the following command:
+
+```bash
+rostest prediction unit_tests.test
+```
+
+or
+    
+```bash
+rosrun prediction unit_tests
+```
+
 ## Parameters
 
 To adjust the parameters related to the processing node, edit the file `config/processing_params.yml`. Parameters are explained in the following table:

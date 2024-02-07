@@ -87,18 +87,20 @@ public:
     void drawCluster(const arma::mat &cluster);
 
     /**
-     * @brief Fit a second-order polynomial to data points and return the coefficients
+     * @brief Fit an n-order polynomial to data points and return the coefficients
      *
      * @param coordinates A vector with coordinates (x, y) of white pixels
+     * @param order Order of the polynomial
      *
      * @return Eigen::VectorXd containing 3 coefficients [a0 a1 a2]
      */
     Eigen::VectorXd leastSquaresFit(const std::vector<cv::Point> &coordinates, const int &order);
 
     /**
-     * @brief Fit a second order polynomial to data points using RANSAC algorithm and return the coefficients
+     * @brief Fit an n-order polynomial to data points using RANSAC algorithm and return the coefficients
      *
      * @param coordinates A vector with cordinates (x, y) of white pixels
+     * @param order Order of the polynomial
      * @param min_samples Minimum number of samples chosen randomly from data
      * @param threshold Maximum distance for a sample to be considered an inlier
      * @param max_iterations Maximum number of iterations for random sample selection

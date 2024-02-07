@@ -56,16 +56,7 @@ void Processing::binarize(cv::Mat &image, double threshold /* =  0.6*/)
 std::vector<cv::Point> Processing::findActivePixels(const cv::Mat &image)
 {
     std::vector<cv::Point> active_pixels_coordinates;
-    for (int y = 0; y < image.rows; ++y)
-    {
-        for (int x = 0; x < image.cols; ++x)
-        {
-            if (image.at<uchar>(y, x) == 1.0)
-            {
-                active_pixels_coordinates.push_back(cv::Point(x, y));
-            }
-        }
-    }
+    cv::findNonZero(image, active_pixels_coordinates);
     return active_pixels_coordinates;
 }
 

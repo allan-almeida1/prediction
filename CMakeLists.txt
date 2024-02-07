@@ -1,11 +1,14 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.26)
 project(prediction)
+
+# add_definitions(-std=c++11 -Ofast -Wall -g)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
+set(CMAKE_CXX_STANDARD 17)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -137,6 +140,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${GTEST_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -176,6 +180,33 @@ set(HEADERS_state_estimation
 )
 
 add_executable(state_estimation ${SOURCES_state_estimation} ${HEADERS_state_estimation})
+
+
+find_package(GTest REQUIRED)
+
+# Add test executable
+
+set(SOURCES_tests
+  tests/processing_test.cpp
+  tests/main.cpp
+  src/processing/Processing.cpp
+)
+
+set(HEADERS_tests
+  src/processing/include/Processing.hpp
+)
+
+add_executable(unit_tests ${SOURCES_tests} ${HEADERS_tests})
+
+target_link_libraries(unit_tests
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
+  ${GTEST_LIBRARY}
+  ${GTEST_MAIN_LIBRARY}
+  pthread
+)
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

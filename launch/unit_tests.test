@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+
+    <test test-name="unit_tests" pkg="prediction" type="unit_tests" />
+
+</launch>
