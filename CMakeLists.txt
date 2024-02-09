@@ -137,6 +137,7 @@ include_directories(
 # include
   ${PROJECT_SOURCE_DIR}/src/processing/include
   ${PROJECT_SOURCE_DIR}/src/state_estimation/include
+  ${PROJECT_SOURCE_DIR}/include/prediction
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
@@ -159,10 +160,12 @@ include_directories(
 set(SOURCES_processing
   src/processing/Processing.cpp
   src/processing/ProcessingNode.cpp
+  src/util/exec_time_cpp/ExecTime.cpp
   src/processing/main.cpp
 )
 set(HEADERS_processing
   src/processing/include/Processing.hpp
+  include/prediction/ExecTime.hpp
   src/processing/include/ProcessingNode.hpp
 )
 

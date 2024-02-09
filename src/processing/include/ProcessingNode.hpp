@@ -13,6 +13,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <deque>
 #include "Processing.hpp"
+#include "ExecTime.hpp"
 
 /**
  * @brief This class is responsible for processing a binary image coming from a topic
@@ -32,15 +33,18 @@ public:
 
 private:
     ros::NodeHandle *nh;
-    ros::Subscriber img_sub; // Image topic subscriber
-    ros::Publisher path_pub; // Path publisher
-    Processing processing;
+    ros::Subscriber img_sub;                    // Image topic subscriber
+    ros::Publisher path_pub;                    // Path publisher
+    ExecTime execTime;                          // Used to calculate execution time
     int window_size;                            // Window size for moving average calculation (filter RANSAC)
     int order;                                  // Polynomial order for RANSAC fitting
     int min_samples;                            // Minimum number of samples for RANSAC
     int threshold;                              // Maximum threshold for a sample to be considered an inlier
     int max_iterations;                         // Maximum number of iterations for RANSAC
     int n_points;                               // Number of points to draw the curve
+    int width;                                  // Width of the image
+    int height;                                 // Height of the image
+    processing::Resolution resolution;          // Image resolution
     std::deque<Eigen::VectorXd> ransac_results; // Deque containing last RANSAC results
 };
 

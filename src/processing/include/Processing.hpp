@@ -4,8 +4,6 @@
  */
 
 #pragma once
-#ifndef DBSCAN_H
-#define DBSCAN_h
 
 #include <vector>
 #include <cmath>
@@ -20,13 +18,32 @@
 #include <prediction/Path.h>
 
 /**
- * @brief This class implements several methods to process a binary image containing lane lines
+ * @brief This namespace implements several methods to process a binary image containing lane lines
+ * such as binarize, preprocess, ransacFit, leastSquaresFit etc
  */
-class Processing
+namespace processing
 {
-public:
-    Processing(std::pair<uint32_t, uint32_t> resolution = std::make_pair<uint32_t, uint32_t>(320, 176), bool verbose = false);
-    ~Processing();
+    /**
+     * @brief Image resolution
+     */
+    struct Resolution
+    {
+        int16_t width;  // Image width (x dimension)
+        int16_t height; // Image height (y dimension)
+
+        Resolution() : width(0), height(0) {}
+        Resolution(int16_t w, int16_t h) : width(w), height(h) {}
+    };
+
+    /**
+     * @brief Polynomial curve
+     */
+    struct Curve
+    {
+        int16_t y_min;                 // Minimum y-axis limit to plot the curve
+        int16_t y_max;                 // Maximum y-axis limit to plot the curve
+        std::vector<cv::Point> points; // A vector with the coordinates of the points to be ploted
+    };
 
     /**
      * @brief Open image from given path
@@ -35,7 +52,8 @@ public:
      *
      * @return Image
      */
-    cv::Mat openImage(const cv::String &path);
+    cv::Mat
+    openImage(const cv::String &path);
 
     /**
      * @brief Show an image and wait for any key to be pressed to close
@@ -83,8 +101,9 @@ public:
      * @brief Create a cv::Mat from given arma::mat and show the image.
      *
      * @param cluster Matrix with the list of pixel coordinates to be set in the image (2, N)
+     * @param resolution Image resolution
      */
-    void drawCluster(const arma::mat &cluster);
+    void drawCluster(const arma::mat &cluster, Resolution resolution);
 
     /**
      * @brief Fit an n-order polynomial to data points and return the coefficients
@@ -112,32 +131,21 @@ public:
     /**
      * @brief Calculate the points to be drawn and return the coordinates
      *
-     * @param coefficients Vector with the 3 coefficients [a0 a1 a2]
-     * @param n_points Number of points to be generated in the vector
+     * @param coefficients Vector with the `n+1` coefficients [a0 a1 a2 ... an]
+     * @param resolution Image resolution
+     * @param n_points Number of points to be generated in the vector (defaults to 9)
      *
-     * @return A vector with the coordinates of the points to be drawn
+     * @return A Curve object that holds the coordinates of the points to be ploted and the y-limits (min/max)
      */
-    std::vector<cv::Point> calculateCurve(const Eigen::VectorXd &coefficients, const uint16_t &n_points = 10);
+    Curve calculateCurve(const Eigen::VectorXd &coefficients, Resolution resolution, const uint16_t &n_points = 9);
 
     /**
      * @brief Draw the curve along with the original image
      *
-     * @param points Vector with the coordinates of the points to be drawn
+     * @param curve A Curve object that holds the coordinates of the points to be ploted and the y-limits (min/max)
      * @param image Original image
      */
-    void drawCurve(const std::vector<cv::Point> &points, cv::Mat &image);
-
-    /**
-     * @brief Start timer
-     */
-    void startTimer();
-
-    /**
-     * @brief Stop timer
-     *
-     * @param description Description of operation being timed
-     */
-    void stopTimer(const char *description = "");
+    void drawCurve(const Curve &curve, cv::Mat &image);
 
     /**
      * @brief Get the last path.
@@ -145,17 +153,6 @@ public:
      * @return prediction::Path containing image resolution, polynomial coefficients and y limits to plot the path
      */
     prediction::Path getPath();
-
-private:
-    std::chrono::_V2::system_clock::time_point start; // start time for duration calculation
-    std::chrono::_V2::system_clock::time_point end;   // end time for duration calculation
-    std::pair<uint32_t, uint32_t> resolution;         // image resolution (width x height)
-    bool VERBOSE;                                     // Controls if details are logged to terminal
-    std::random_device rd;                            // Random device
-    std::mt19937 gen;                                 // Mersenne Twister pseudo random generator
-    float y_max;                                      // Max limit to plot the curve
-    float y_min;                                      // Min limit to plot the curve
-    Eigen::VectorXd best_model;                       // Coefficients for the best model [a0 a1 a2... an]
 
     /**
      * @brief Calculates the error between data points and the estimated polynomial and find inliers
@@ -167,6 +164,5 @@ private:
      * @returns Vector with inliers
      */
     std::vector<cv::Point> findInliers(const std::vector<cv::Point> &coordinates, const Eigen::VectorXd &model, const int &threshold);
-};
 
-#endif // DBSCAN_H
+}; // namespace processing
