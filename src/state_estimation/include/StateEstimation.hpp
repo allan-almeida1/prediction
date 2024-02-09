@@ -5,9 +5,6 @@
 
 #pragma once
 
-#ifndef STATE_ESTIMATION_HPP
-#define STATE_ESTIMATION_HPP
-
 #include <prediction/Path.h>
 #include <cmath>
 
@@ -21,37 +18,33 @@ enum class AngleUnit
 };
 
 /**
- * @brief This class implements methods for estimating states from a given Path
+ * @brief States Z (lateral displacement) and theta (angular error)
  */
-class StateEstimation
+struct States
 {
-public:
-    StateEstimation(double angle_offset = 0, double displacement_offset = 0, double angle_calibration_constant = 0);
-    ~StateEstimation();
+    double Z;
+    double theta;
 
-    /**
-     * @brief Get the lateral displacement (Z)
-     *
-     * @param path The Path to get the lateral displacement from
-     *
-     * @return Lateral displacement (Z)
-     */
-    double getLateralDisplacement(const prediction::Path::Ptr &path);
-
-    /**
-     * @brief Get the angle between real robot frame and the Serret-Frenet frame (theta)
-     *
-     * @param path The Path to get the angle from
-     * @param unit Angle unit, either AngleUnit::DEGREES or AngleUnit::RADIANS (defaults to AngleUnit::RADIANS)
-     *
-     * @return Angle (theta)
-     */
-    double getAngle(const prediction::Path::Ptr &path, AngleUnit unit = AngleUnit::RADIANS);
-
-private:
-    double angle_offset;               // Used to fix angle offset during calibration
-    double displacement_offset;        // Used to fix angle offset during calibration
-    double angle_calibration_constant; // Used to fix angle distortion caused by perspective
+    States() : Z(0.0), theta(0.0) {}
+    States(double _Z, double _theta) : Z(_Z), theta(_theta) {}
 };
 
-#endif // STATE_ESTIMATION_HPP
+/**
+ * @brief This class implements methods for estimating states from a given Path
+ */
+namespace state_estimation
+{
+
+    /**
+     * @brief Get states Z (lateral displacement) and theta (angular error)
+     *
+     * @param path The Path to get the lateral displacement from
+     * @param Z_cal Constant term to callibrate the lateral displacement (Z)
+     * @param theta_cal Constant term to callibrate the angular error (theta)
+     * @param angle_unit Angle unit, either AngleUnit::DEGREES or AngleUnit::RADIANS (defaults to AngleUnit::RADIANS)
+     *
+     * @return States
+     */
+    States getStates(const prediction::Path::Ptr &path, double Z_cal, double theta_cal, AngleUnit angle_unit = AngleUnit::RADIANS);
+
+}; // namespace state_estimation

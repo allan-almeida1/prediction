@@ -9,6 +9,7 @@
 #define STATE_ESTIMATION_NODE_HPP
 
 #include <ros/ros.h>
+#include <ros/param.h>
 #include <prediction/Path.h>
 #include "StateEstimation.hpp"
 
@@ -27,8 +28,9 @@ public:
     void pathCallback(const prediction::Path::Ptr &path);
 
 private:
-    ros::Subscriber path_sub;         // Subscriber for the `/prediction/path` topic
-    StateEstimation state_estimation; // Instance of StateEstimation class
+    ros::Subscriber path_sub; // Subscriber for the `/prediction/path` topic
+    double theta_cal;         // Calibration constant for angular error (theta)
+    double Z_cal;             // Calibration constant for lateral displacement (Z)
 };
 
 #endif // STATE_ESTIMATION_NODE_HPP

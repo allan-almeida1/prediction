@@ -8,7 +8,8 @@
 StateEstimationNode::StateEstimationNode(ros::NodeHandle *nh)
 {
     this->path_sub = nh->subscribe("/prediction/path", 100, &StateEstimationNode::pathCallback, this);
-    this->state_estimation = StateEstimation(0.0349, 0, 0.68068 / 151);
+    nh->param("/state_estimation/Z_cal", this->Z_cal, 1.0);
+    nh->param("/state_estimation/theta_cal", this->theta_cal, 1.0);
 }
 
 StateEstimationNode::~StateEstimationNode()
@@ -17,7 +18,7 @@ StateEstimationNode::~StateEstimationNode()
 
 void StateEstimationNode::pathCallback(const prediction::Path::Ptr &path)
 {
-    double theta = state_estimation.getAngle(path, AngleUnit::DEGREES);
-    double z = state_estimation.getLateralDisplacement(path);
-    ROS_INFO("Theta: %.2f deg | Z: %d px", theta, int(z));
+    States states = state_estimation::getStates(path, this->Z_cal, this->theta_cal, AngleUnit::DEGREES);
+    // TODO: create rosmsg in format expected by the controller
+    ROS_INFO("Theta: %.2f deg | Z: %.3f m", states.theta, states.Z);
 }
