@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   message_generation
+  opencv101
 )
 
 find_package(OpenCV REQUIRED)
@@ -191,12 +192,15 @@ find_package(GTest REQUIRED)
 
 set(SOURCES_tests
   tests/processing_test.cpp
+  tests/state_estimation_test.cpp
   tests/main.cpp
   src/processing/Processing.cpp
+  src/state_estimation/StateEstimation.cpp
 )
 
 set(HEADERS_tests
   src/processing/include/Processing.hpp
+  src/state_estimation/include/StateEstimation.hpp
 )
 
 add_executable(unit_tests ${SOURCES_tests} ${HEADERS_tests})

@@ -12,6 +12,7 @@
 #include <ros/param.h>
 #include <prediction/Path.h>
 #include "StateEstimation.hpp"
+#include <opencv101/desvioParams.h>
 
 /**
  * @brief This class is responsible for estimating the model states from the curve that was fit to the lane
@@ -28,9 +29,10 @@ public:
     void pathCallback(const prediction::Path::Ptr &path);
 
 private:
-    ros::Subscriber path_sub; // Subscriber for the `/prediction/path` topic
-    double theta_cal;         // Calibration constant for angular error (theta)
-    double Z_cal;             // Calibration constant for lateral displacement (Z)
+    ros::Subscriber path_sub;  // Subscriber for the `/prediction/path` topic
+    ros::Publisher params_pub; // Publisher for the `/desvio_da_curvatura`
+    double theta_cal;          // Calibration constant for angular error (theta)
+    double Z_cal;              // Calibration constant for lateral displacement (Z)
 };
 
 #endif // STATE_ESTIMATION_NODE_HPP

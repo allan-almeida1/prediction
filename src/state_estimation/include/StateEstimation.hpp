@@ -36,9 +36,10 @@ namespace state_estimation
 {
 
     /**
-     * @brief Get states Z (lateral displacement) and theta (angular error)
+     * @brief Get states Z (lateral displacement) and theta (angular error) for the median point
+     * of the curve (h = height/2)
      *
-     * @param path The Path to get the lateral displacement from
+     * @param path The Path to get the states from
      * @param Z_cal Constant term to callibrate the lateral displacement (Z)
      * @param theta_cal Constant term to callibrate the angular error (theta)
      * @param angle_unit Angle unit, either AngleUnit::DEGREES or AngleUnit::RADIANS (defaults to AngleUnit::RADIANS)
@@ -46,5 +47,15 @@ namespace state_estimation
      * @return States
      */
     States getStates(const prediction::Path::Ptr &path, double Z_cal, double theta_cal, AngleUnit angle_unit = AngleUnit::RADIANS);
+
+    /**
+     * @brief Get curvature for the median point of the curve (h = height/2)
+     *
+     * @param path The Path to calculate central curvature
+     * @param curv_cal Constant term to convert curvature from rad/px to rad/m
+     *
+     * @return Curvature for h = height/2
+     */
+    double calculateCurvature(const prediction::Path::Ptr &path, double curv_cal);
 
 }; // namespace state_estimation

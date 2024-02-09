@@ -51,6 +51,17 @@ namespace state_estimation
         return states;
     }
 
-    // TODO: calculate curvature(s)
+    double calculateCurvature(const prediction::Path::Ptr &path, double curv_calc)
+    {
+        int h = int(path->resolution.height / 2);
+        double dx_dy = 0.0;
+        double d2x_dy2 = 0.0;
+        for (int16_t i = 0; i < path->coefficients.size(); ++i)
+        {
+            dx_dy += path->coefficients[i] * i * std::pow(h, i - 1);
+            d2x_dy2 += path->coefficients[i] * i * (i - 1) * std::pow(h, i - 2);
+        }
+        return d2x_dy2 / std::sqrt(std::pow(1 + std::pow(dx_dy, 2), 3)) / curv_calc;
+    }
 
 }; // namespace state_estimation

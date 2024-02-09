@@ -11,5 +11,8 @@
 
     <node pkg="prediction" type="processing" name="processing" output="screen" />
 
+    <!-- Include state_estimation launch file -->
+    <include file="$(find prediction)/launch/state_estimation.launch" />
+
 
 </launch>
