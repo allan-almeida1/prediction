@@ -7,3 +7,5 @@ processing:
   n_points: 8 # Number of points used to draw the curve for the lane
   width: 320 # Width of the image
   height: 176 # Height of the image
+  show_image: True # Show the image with the detected path
+  publish_image: True # Publish the image with the detected path

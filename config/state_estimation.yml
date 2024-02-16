@@ -1,3 +1,4 @@
 state_estimation:
-  Z_cal: 0.006622517 # Calibration factor for the lateral displacement (Z)
-  theta_cal: 1.51 # Calibration factor for the angular error (theta)
+  # Z_cal: 0.005196209 # Calibration factor for the lateral displacement (Z)
+  Z_cal: 0.003597923 # Calibration factor for the lateral displacement (Z)
+  theta_cal: 1.302484516 # Calibration factor for the angular error (theta)

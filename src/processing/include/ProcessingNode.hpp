@@ -34,6 +34,7 @@ public:
 private:
     ros::NodeHandle *nh;
     ros::Subscriber img_sub;                    // Image topic subscriber
+    ros::Publisher img_pub;                     // Path img publisher
     ros::Publisher path_pub;                    // Path publisher
     ExecTime execTime;                          // Used to calculate execution time
     int window_size;                            // Window size for moving average calculation (filter RANSAC)
@@ -44,6 +45,8 @@ private:
     int n_points;                               // Number of points to draw the curve
     int width;                                  // Width of the image
     int height;                                 // Height of the image
+    bool publish_image;                         // Wether to publish the resulting image
+    bool show_image;                            // Wether to show the resulting image
     processing::Resolution resolution;          // Image resolution
     std::deque<Eigen::VectorXd> ransac_results; // Deque containing last RANSAC results
 };

@@ -11,6 +11,7 @@ ProcessingNode::ProcessingNode(ros::NodeHandle *nh)
     // this->processing = Processing();
     this->img_sub = nh->subscribe("/image_raw_bin", 100, &ProcessingNode::imageCallback, this);
     this->path_pub = nh->advertise<prediction::Path>("/prediction/path", 100);
+    this->img_pub = nh->advertise<sensor_msgs::Image>("/image/path", 100);
     nh->param("/processing/window_size", this->window_size, 7);
     nh->param("/processing/n_points", this->n_points, 8);
     nh->param("/processing/order", this->order, 2);
@@ -19,6 +20,8 @@ ProcessingNode::ProcessingNode(ros::NodeHandle *nh)
     nh->param("/processing/max_iterations", this->max_iterations, 200);
     nh->param("/processing/width", this->width, 320);
     nh->param("/processing/height", this->height, 176);
+    nh->param("/processing/publish_image", this->publish_image, true);
+    nh->param("/processing/show_image", this->show_image, true);
     this->resolution = processing::Resolution(this->width, this->height);
 }
 
@@ -86,7 +89,17 @@ void ProcessingNode::imageCallback(const sensor_msgs::Image::Ptr &img)
         path.resolution.height = this->resolution.height;
         path_pub.publish(path);
 
-        processing::drawCurve(curve, original_img);
+        if (this->show_image)
+        {
+            processing::drawCurve(curve, original_img);
+        }
+        if (this->publish_image)
+        {
+            cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
+            cv_ptr->encoding = "bgr8";
+            cv_ptr->image = original_img;
+            img_pub.publish(cv_ptr->toImageMsg());
+        }
     }
     else
     {

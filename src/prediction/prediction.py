@@ -38,8 +38,10 @@ class Prediction:
         self.resolution = (320, 176)
         self.topic_name = rospy.get_param("/prediction_node/topic_name", "/camera/image")
         rospy.loginfo(f"Subscribing to {self.topic_name}")
+        self.show_image = rospy.get_param("/prediction_node/show_image", False)
         self.bridge = CvBridge()
-        
+        self.ts = rospy.get_param("/prediction_node/ts", 0.1)
+        self.last_time = rospy.Time.now()
         self.check_gpu()
         self.load_model()
         self.frozen_model = freeze_model(self.model)
@@ -73,7 +75,7 @@ class Prediction:
         erf = ERFNet(input_shape=(176, 320, 3))
         self.model = erf.build()
         self.model.load_weights(os.path.join(
-            parentdir, "../weights/20231018_after_ramp.h5"))
+            parentdir, "../weights/20240216_unity_fine_tunning.h5"))
         rospy.loginfo("Model loaded")
 
 
@@ -99,9 +101,14 @@ class Prediction:
         mask_np = np.uint8(mask_np * 255)
         mask_np = cv2.resize(mask_np, (640, 360))
         img_bin = self.bridge.cv2_to_imgmsg(mask_np, encoding="mono8")
-        self.image_pub.publish(img_bin)
-        cv2.imshow("Prediction", mask_np)
-        cv2.waitKey(1)
+        current_time = rospy.Time.now()
+        # Delay to meet the desired rate
+        if (current_time - self.last_time).to_sec() > self.ts:
+            self.image_pub.publish(img_bin)
+            if self.show_image:
+                cv2.imshow("Prediction", mask_np)
+                cv2.waitKey(1)
+            self.last_time = current_time
 
 
     def image_callback(self, msg: Image):
@@ -114,9 +121,7 @@ class Prediction:
 
         rospy.loginfo("Image received")
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-        # show image
-        # cv2.imshow("Image", cv_image)
-        # cv2.waitKey(1)
+
         self.predict_image(cv_image)
 
         

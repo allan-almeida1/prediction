@@ -21,7 +21,7 @@ void StateEstimationNode::pathCallback(const prediction::Path::Ptr &path)
 {
     States states = state_estimation::getStates(path, this->Z_cal, this->theta_cal, AngleUnit::RADIANS);
     double curvature = state_estimation::calculateCurvature(path, this->Z_cal);
-    ROS_INFO("Theta: %.2f deg | Z: %.3f m | Curvature: %.3f", states.theta, states.Z, curvature);
+    ROS_INFO("Theta: %.3f rad | Z: %.3f m | Curvature: %.3f", states.theta, states.Z, curvature);
     opencv101::desvioParams params;
     params.cmax = 0;
     params.curvature = curvature;
