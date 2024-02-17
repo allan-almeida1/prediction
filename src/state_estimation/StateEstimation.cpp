@@ -10,7 +10,7 @@ namespace state_estimation
 
     States getStates(const prediction::Path::Ptr &path, double Z_cal, double theta_cal, AngleUnit angle_unit)
     {
-        int h = int(path->resolution.height / 2);
+        int h = int(path->resolution.height * 3 / 4);
         States states;
         double delta = 0.5;
         double x_px = 0;
@@ -53,7 +53,7 @@ namespace state_estimation
 
     double calculateCurvature(const prediction::Path::Ptr &path, double curv_calc)
     {
-        int h = int(path->resolution.height / 2);
+        int h = int(path->resolution.height * 3 / 4);
         double dx_dy = 0.0;
         double d2x_dy2 = 0.0;
         for (int16_t i = 0; i < path->coefficients.size(); ++i)

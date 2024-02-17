@@ -1,5 +1,5 @@
 processing:
-  window_size: 6 # Number of frames window to calculate moving average for RANSAC
+  window_size: 2 # Number of frames window to calculate moving average for RANSAC
   order: 3 # Polynomial order for RANSAC
   min_samples: 4 # Minimum number of samples to fit a model
   threshold: 10 # Maximum residual for a data sample to be classified as an inlier
