@@ -13,9 +13,13 @@ class PIController:
         """
         Initialize PI Controller node
         """
-        self.kp = -5
-        self.ki = 0.1
-        self.linear_velocity = 0.1
+        self.kp_z = -5
+        self.kp_theta = -0.5
+        self.ki_z = -0.45
+        self.integral_z = 0
+        self.last_time = None
+        self.linear_velocity = 0.15
+        self.limit_angular_velocity = 1.2
 
         rospy.loginfo("Running PI Controller node...")
 
@@ -48,7 +52,13 @@ class PIController:
         """
         error_z = data.de0
         error_theta = data.thetae0
-        control_signal = self.kp * error_z + 0.1 * error_theta
+        control_signal =  self.kp_theta * error_theta + self.kp_z * error_z
+        if self.last_time is not None:
+            dt = rospy.get_time() - self.last_time
+            self.integral_z += error_z * dt
+            control_signal += self.ki_z * self.integral_z
+        self.last_time = rospy.get_time()
+        control_signal = max(min(control_signal, self.limit_angular_velocity), -self.limit_angular_velocity)
         rospy.loginfo(f"Control signal: {control_signal}")
         twist = Twist()
         twist.linear.x = self.linear_velocity

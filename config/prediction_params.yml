@@ -1,4 +1,4 @@
 prediction_node:
   topic_name: /camera/image # Topic name to subscribe to for image data
-  ts: 0.15  # Time step for prediction system
+  ts: 0.03  # Time step for prediction system
   show_image: False # Show the image with the predicted lane

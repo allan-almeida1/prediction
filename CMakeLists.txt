@@ -124,7 +124,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES prediction
- CATKIN_DEPENDS geometry_msgs image_transport roscpp rospy sensor_msgs std_msgs message_runtime
+ CATKIN_DEPENDS geometry_msgs image_transport roscpp rospy sensor_msgs std_msgs message_runtime 
 #  DEPENDS system_lib
 )
 

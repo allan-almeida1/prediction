@@ -76,6 +76,8 @@ class Prediction:
         self.model = erf.build()
         self.model.load_weights(os.path.join(
             parentdir, "../weights/20240216_unity_fine_tunning.h5"))
+        # self.model.load_weights(os.path.join(
+        #     parentdir, "../weights/20231018_after_ramp.h5"))
         rospy.loginfo("Model loaded")
 
 

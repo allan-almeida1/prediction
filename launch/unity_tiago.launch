@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <rosparam command="load" file="$(find prediction)/config/prediction_params.yml" />
+
+    <!-- <node name="prediction_node" pkg="prediction" type="prediction.py" output="screen" /> -->
+    <node pkg="opencv101" type="drawCircle.py" name="image_converter_python" />
+    <!-- <node pkg="opencv101" type="opencv101_node" name="image_converter_cpp" /> -->
+
+    <rosparam command="load" file="$(find prediction)/config/processing_params.yml" />
+
+    <node pkg="prediction" type="processing" name="processing" output="screen" />
+
+    <!-- Include state_estimation launch file -->
+    <include file="$(find prediction)/launch/state_estimation.launch" />
+
+
+</launch>
