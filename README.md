@@ -129,10 +129,10 @@ Then, run the following command to create the conda environment:
 conda create --name <env_name> python=3.8 # or any other version
 ```
 
-To install the required packages, run the following command:
+To install the required packages, go back to the root of the repository and run the following script:
 
 ```bash
-./scripts/create_env <env_name>
+./scripts/create_env.sh <env_name>
 ```
 
 where `<env_name>` is the name of the environment you want to create, e.g. `tf_env`. The script will create a new conda environment with the name `<env_name>` and install all the required packages. To activate the environment, run the following command:
