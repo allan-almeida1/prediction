@@ -16,6 +16,13 @@ Transfer Learning-based Lane Line Detection System for Visual Path Following Con
 
 This repository contains the code for the ROS package `prediction` which is used to detect a path from a camera image.
 
+Clone the repository into your catkin workspace:
+    
+```bash
+cd ~/catkin_ws/src
+git clone git@github.com:allan-almeida1/prediction.git
+```
+
 ## Dependencies
 
 [![ROS](https://img.shields.io/badge/ROS-Noetic-blue)](http://wiki.ros.org/noetic/Installation)
@@ -34,28 +41,22 @@ The package depends on the following libraries:
 - [MLPack](https://www.mlpack.org/)
 - [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 
-TensorFlow, OpenCV (python) and NumPy will be installed automatically when you run the script to create the conda environment. The other dependencies need to be installed manually.
+TensorFlow, OpenCV (python) and NumPy will be installed automatically when you run the script to create the conda environment. The other dependencies need to be installed manually, using rosdep.
 
-To install Eigen, run the following command:
-
+To install all the dependencies, run the following commands:
+    
 ```bash
-sudo apt install libeigen3-dev
+cd ~/catkin_ws
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
 ```
 
-To install MLPack, run the following command:
+## Compilation
+
+To compile the package, run catkin_make in the catkin workspace:
 
 ```bash
-sudo apt install libmlpack-dev
-```
-
-## Installation
-
-To install the package, clone the repository into your catkin workspace and build it:
-
-```bash
-cd ~/catkin_ws/src
-git clone
-cd ..
+cd ~/catkin_ws
 catkin_make # or catkin build
 ```
 
@@ -109,22 +110,43 @@ To adjust the parameters related to the processing node, edit the file `config/p
 | `processing/n_points` | Number of points used to draw the curve for the lane | 8 |
 
 
-## GPU Support
+## Running the Prediction Node and GPU Support
 
-To enable GPU support, you need to install the CUDA Toolkit and cuDNN. Then, you need to install the GPU version of TensorFlow. A script was created to automate this process and create a virtual conda environment with everything set up. To use it, run the following command:
+To enable GPU support, you need to install the CUDA Toolkit and cuDNN. Then, you need to install the GPU version of TensorFlow. A script was created to automate this process and setup a virtual conda environment.
+
+First, make sure you have conda installed. If not, you can install it using the following commands:
 
 ```bash
-./scripts/create_env [env_name]
+cd /tmp
+curl -O https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
+bash Anaconda3-2020.11-Linux-x86_64.sh
+source ~/.bashrc
 ```
 
-where `[env_name]` is the name of the environment you want to create. The script will create a new conda environment with the name `[env_name]` and install all the required packages. To activate the environment, run the following command:
+Then, run the following command to create the conda environment:
+
+```bash
+conda create --name <env_name> python=3.8 # or any other version
+```
+
+To install the required packages, run the following command:
+
+```bash
+./scripts/create_env <env_name>
+```
+
+where `<env_name>` is the name of the environment you want to create, e.g. `tf_env`. The script will create a new conda environment with the name `<env_name>` and install all the required packages. To activate the environment, run the following command:
 
 To run with GPU support, you need to activate the conda environment first:
 
 ```bash
-conda activate [env_name]
+conda activate <env_name>
 ```
 
-Then, you can run the package as usual.
+Then, you can run the node as usual.
+
+```bash
+roslaunch prediction video.launch
+```
 
 **Note:** The script is set up to install CUDA Toolkit 11.8, cuDNN 8.6.0.163 and Tensorflow 2.13. If you want to use different versions, you need to edit the script accordingly.
