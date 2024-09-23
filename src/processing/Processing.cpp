@@ -51,57 +51,6 @@ namespace processing
         return active_pixels_coordinates;
     }
 
-    arma::mat dbscan(const std::vector<cv::Point> &dataset, const double eps, const size_t min_points)
-    {
-        mlpack::DBSCAN<> dbscan(eps, min_points);
-        arma::Row<size_t> labels;
-        arma::mat data(2, dataset.size());
-
-        for (size_t i = 0; i < dataset.size(); ++i)
-        {
-            data(0, i) = (double)dataset[i].x;
-            data(1, i) = (double)dataset[i].y;
-        }
-
-        size_t n_clusters = dbscan.Cluster(data, labels);
-
-        // If only 1 cluster, return it
-        if (n_clusters == 1)
-        {
-            return data;
-        }
-
-        // Get the best cluster
-        size_t best_cluster;
-        double max_value = 0;
-        for (size_t i = 0; i < n_clusters; ++i)
-        {
-            arma::uvec cluster_indices = arma::find(labels == i);
-            arma::mat x_coords = (arma::mat)data.cols(cluster_indices);
-            double max = x_coords.row(1).max();
-            if (max > max_value)
-            {
-                max_value = max;
-                best_cluster = i;
-            }
-        }
-        // ... and return it
-        return (arma::mat)data.cols(arma::find(labels == best_cluster));
-    }
-
-    void drawCluster(const arma::mat &cluster, Resolution resolution)
-    {
-        cv::Mat image(resolution.height, resolution.width, CV_64F, 0.0);
-        for (arma::uword i = 0; i < cluster.n_cols; ++i)
-        {
-            uint16_t x = static_cast<uint16_t>(cluster(0, i));
-            uint16_t y = static_cast<uint16_t>(cluster(1, i));
-            image.at<double>(y, x) = 255;
-        }
-        cv::imshow("Best cluster", image);
-        cv::waitKey(1);
-    }
-
     Eigen::VectorXd leastSquaresFit(const std::vector<cv::Point> &coordinates, const int &order)
     {
         Eigen::MatrixXd A(coordinates.size(), order + 1);

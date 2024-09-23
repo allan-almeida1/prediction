@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="video" default="/home/allan/Documentos/bk_allan_20231215/Allan/images_husky.mp4" />
+    <arg name="video" default="$(find prediction)/video/images_husky.mp4" />
     <arg name="image_topic" default="/image_publisher/image_raw" />
 
     <node name="image_publisher" pkg="image_publisher" type="image_publisher" output="screen"

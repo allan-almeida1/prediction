@@ -11,8 +11,6 @@
 #include <random>
 #include <chrono>
 #include <opencv2/opencv.hpp>
-#include <mlpack/core.hpp>
-#include <mlpack/methods/dbscan/dbscan.hpp>
 #include <eigen3/Eigen/Dense>
 #include <ros/ros.h>
 #include <prediction/Path.h>
@@ -84,26 +82,6 @@ namespace processing
      * @param image Image to search for active pixels
      */
     std::vector<cv::Point> findActivePixels(const cv::Mat &image);
-
-    /**
-     * @brief Clusterize the given dataset using DBSCAN algorithm and return the best cluster
-     * (where lane lines come far to the image bottom).
-     *
-     * @param dataset Input dataset
-     * @param eps Radius of search (default is 5.0)
-     * @param min_points Minimum number of neighbors to consider a point a core point (default is 10U)
-     *
-     * @return The cluster for each given point. n = 1, 2... or -1 if outlier (no cluster).
-     */
-    arma::mat dbscan(const std::vector<cv::Point> &dataset, const double eps = 5.0, const size_t min_points = 10UL);
-
-    /**
-     * @brief Create a cv::Mat from given arma::mat and show the image.
-     *
-     * @param cluster Matrix with the list of pixel coordinates to be set in the image (2, N)
-     * @param resolution Image resolution
-     */
-    void drawCluster(const arma::mat &cluster, Resolution resolution);
 
     /**
      * @brief Fit an n-order polynomial to data points and return the coefficients

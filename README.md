@@ -5,6 +5,8 @@ Transfer Learning-based Lane Line Detection System for Visual Path Following Con
 
 <h4 align="center">
     <a href="#introduction">Introduction</a> |
+    <a href="#running-on-docker-container-recommended">Running on Docker Container</a> |
+    <a href="#running-on-local-machine">Running on Local Machine</a> |
     <a href="#dependencies">Dependencies</a> |
     <a href="#installation">Installation</a> |
     <a href="#nodes">Nodes</a> |
@@ -23,13 +25,94 @@ cd ~/catkin_ws/src
 git clone git@github.com:allan-almeida1/prediction.git
 ```
 
+This repository uses git LFS to store large files. If you don't have git LFS installed, you can install it by following the instructions [here](https://git-lfs.github.com/).
+
+To pull the large files, run the following command:
+
+```bash
+cd ~/catkin_ws/src/prediction
+git lfs pull
+```
+
+You can build and run the package on your local machine or on a Docker container. The instructions for both are provided below.
+
+## Running on Docker Container (Recommended)
+
+To ensure that the package runs correctly, it is recommended to run it on a Docker container. If you don't have Docker installed, you can install it by following the instructions [here](https://docs.docker.com/get-docker/).
+
+To build the Docker image, run the following command:
+
+```bash
+cd ~/catkin_ws/src/prediction
+./build-devel.sh
+```
+
+Go grab a coffee :coffee: or a tea :tea: while the image is being built. Once the image is built, you can run the container using the following command:
+
+```bash
+./run-devel.sh
+```
+
+To open a new terminal in the same container, run the following command:
+
+```bash
+./exec-terminal.sh
+```
+
+There is already a python virtual environment set up in the container. To activate the environment, run the container and then run the following command:
+
+```bash
+source ~/tf_env/bin/activate
+```
+
+You should see the name of the environment in the terminal prompt, something like `(tf_env) ros@container_id:~/catkin_ws$`.
+
+Now, you can build the package by running:
+
+```bash
+cd ~/catkin_ws
+catkin_make --only-pkg-with-deps prediction
+```
+
+After building, source the workspace:
+
+```bash
+source devel/setup.bash
+```
+
+You can now run the package using the launch files as described in the [Launch Files](#launch-files) section.
+
+To run prediction node on a video file, use the following command:
+
+```bash
+roslaunch prediction video.launch
+```
+
+## Running on Local Machine
+
+To run the package on your local machine, you need to install the dependencies manually. The instructions for installing the dependencies are provided in the [Dependencies](#dependencies) section.
+
+You also need to create a python virtual environment to install the required packages. To create the environment, run the following commands:
+
+```bash
+cd ~/
+python3 -m venv tf_env
+source ~/tf_env/bin/activate
+```
+
+Install the pip packages:
+
+```bash
+pip install --upgrade pip
+pip install -r ~/catkin_ws/src/prediction/requirements.txt
+```
+
 ## Dependencies
 
 [![ROS](https://img.shields.io/badge/ROS-Noetic-blue)](http://wiki.ros.org/noetic/Installation)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.13.1-orange)](https://www.tensorflow.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.8.1-green)](https://opencv.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-1.23.5-yellowgreen)](https://numpy.org/)
-[![MLPack](https://img.shields.io/badge/MLPack-4.3.0-darkblue)](https://www.mlpack.org/)
 [![Eigen](https://img.shields.io/badge/Eigen-3.3.9-blue)](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 
 The package depends on the following libraries:
