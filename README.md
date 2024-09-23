@@ -59,12 +59,6 @@ To open a new terminal in the same container, run the following command:
 ./exec-terminal.sh
 ```
 
-There is already a python virtual environment set up in the container. To activate the environment, run the container and then run the following command:
-
-```bash
-source ~/tf_env/bin/activate
-```
-
 You should see the name of the environment in the terminal prompt, something like `(tf_env) ros@container_id:~/catkin_ws$`.
 
 Now, you can build the package by running:
@@ -78,6 +72,12 @@ After building, source the workspace:
 
 ```bash
 source devel/setup.bash
+```
+
+There is already a python virtual environment set up in the container. To activate the environment, run the container and then run the following command:
+
+```bash
+source ~/tf_env/bin/activate
 ```
 
 You can now run the package using the launch files as described in the [Launch Files](#launch-files) section.
