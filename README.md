@@ -53,6 +53,14 @@ Go grab a coffee :coffee: or a tea :tea: while the image is being built. Once th
 ./run-devel.sh
 ```
 
+Or if you want to run the container with GPU support, use the following command:
+
+```bash
+./run-devel-gpu.sh
+```
+
+**Note:** The GPU version of the container requires an NVIDIA GPU and the NVIDIA Container Toolkit to be installed on the host machine. You can install the toolkit by following the instructions [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
+
 To open a new terminal in the same container, run the following command:
 
 ```bash
