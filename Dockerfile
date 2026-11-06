@@ -22,7 +22,7 @@ COPY --chown=ros:ros . /home/ros/catkin_ws/src/prediction
 WORKDIR /home
 USER root
 RUN apt-get update && \
-    apt-get install -y wget=1.20.3-1ubuntu1 --no-install-recommends && \
+    apt-get install -y wget --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     wget -q https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh && \
@@ -37,7 +37,7 @@ ENV PATH="/usr/local/cmake-3.30.3/bin:$PATH"
 # Install and configure the Python environment
 USER root
 RUN apt-get update && \
-    apt-get install -y python3-pip=20.0.2-5ubuntu1.10 --no-install-recommends && \
+    apt-get install -y python3-pip --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     pip3 install --upgrade --no-cache-dir pip==24.2 && \
@@ -46,12 +46,23 @@ RUN apt-get update && \
 # Create the python environment and install the required packages
 WORKDIR /home/ros/
 RUN apt-get update && \
-    apt-get install python3.8-venv=3.8.10-0ubuntu1~20.04.12 --no-install-recommends -y && \
+    apt-get install python3.8-venv --no-install-recommends -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m venv tf_env && \
     /home/ros/tf_env/bin/pip install --upgrade --no-cache-dir pip==24.2 && \
-    /home/ros/tf_env/bin/pip install --no-cache-dir tensorflow==2.13.* opencv-python==4.9.* matplotlib==3.1.2 rospkg==1.5.1 PyYAML==5.3.1
+    /home/ros/tf_env/bin/pip install --no-cache-dir tensorflow==2.13.* opencv-python==4.9.* matplotlib==3.1.2 rospkg==1.5.1 PyYAML==5.3.1 && \
+    /home/ros/tf_env/bin/pip install --no-cache-dir \
+        nvidia-cuda-runtime-cu11==11.8.89 nvidia-cublas-cu11==11.11.3.6 nvidia-cufft-cu11==10.9.0.58 \
+        nvidia-curand-cu11==10.3.0.86 nvidia-cusolver-cu11==11.4.1.48 nvidia-cusparse-cu11==11.7.5.86 \
+        nvidia-cuda-cupti-cu11==11.8.87 nvidia-cudnn-cu11==8.6.0.163
+
+# CUDA 11.8 + cuDNN 8.6 runtime libraries for TensorFlow 2.13 GPU support (pip wheels, no system CUDA needed)
+ENV NV_LIBS=/home/ros/tf_env/lib/python3.8/site-packages/nvidia
+ENV LD_LIBRARY_PATH="${NV_LIBS}/cuda_runtime/lib:${NV_LIBS}/cublas/lib:${NV_LIBS}/cufft/lib:${NV_LIBS}/curand/lib:${NV_LIBS}/cusolver/lib:${NV_LIBS}/cusparse/lib:${NV_LIBS}/cuda_cupti/lib:${NV_LIBS}/cudnn/lib:${LD_LIBRARY_PATH}"
+# Newer GPUs (e.g. RTX 50-series) need TF's kernels JIT-compiled from PTX; cache them (persisted via a volume in run-devel-gpu.sh)
+ENV CUDA_CACHE_MAXSIZE=4294967296
+RUN mkdir -p /home/ros/.nv && chown -R ros:ros /home/ros/.nv
 
 # Build the workspace
 USER ros

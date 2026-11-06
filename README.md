@@ -18,19 +18,19 @@ Transfer Learning-based Lane Line Detection System for Visual Path Following Con
 
 This repository contains the code for the ROS package `prediction` which is used to detect a path from a camera image.
 
-Clone the repository into your catkin workspace:
+Clone the repository. For the Docker workflow it can live anywhere; for a local (non-Docker) build, clone it into your catkin workspace:
     
 ```bash
-cd ~/catkin_ws/src
+cd ~/catkin_ws/src   # or any directory, if using Docker
 git clone git@github.com:allan-almeida1/prediction.git
 ```
 
 This repository uses git LFS to store large files. If you don't have git LFS installed, you can install it by following the instructions [here](https://git-lfs.github.com/).
 
-To pull the large files, run the following command:
+To pull the large files, run the following command from the repository root:
 
 ```bash
-cd ~/catkin_ws/src/prediction
+cd prediction
 git lfs pull
 ```
 
@@ -40,10 +40,9 @@ You can build and run the package on your local machine or on a Docker container
 
 To ensure that the package runs correctly, it is recommended to run it on a Docker container. If you don't have Docker installed, you can install it by following the instructions [here](https://docs.docker.com/get-docker/).
 
-To build the Docker image, run the following command:
+To build the Docker image, run the following command from the repository root:
 
 ```bash
-cd ~/catkin_ws/src/prediction
 ./build-devel.sh
 ```
 
@@ -60,6 +59,12 @@ Or if you want to run the container with GPU support, use the following command:
 ```
 
 **Note:** The GPU version of the container requires an NVIDIA GPU and the NVIDIA Container Toolkit to be installed on the host machine. You can install the toolkit by following the instructions [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
+
+The run scripts mount the repository directory into the container at `~/catkin_ws/src/prediction`, so source changes on the host are visible inside the container immediately. The rest of the workspace (`build/`, `devel/`) lives only inside the container and is discarded when it exits (`--rm`), so rebuild the package in each new container session.
+
+GUI windows (OpenCV, rviz, etc.) are shown on the host display: the run scripts pass `DISPLAY` and mount your X authorization cookie (`$XAUTHORITY`, or `~/.Xauthority`) into the container. This also works under Wayland via Xwayland. If no window appears, check that `echo $DISPLAY $XAUTHORITY` prints values in the host terminal you launch the script from.
+
+A warning like `groups: cannot find name for group ID 992` when starting the GPU container is harmless: it's the host's `render` group, added for GPU device access, which has no name inside the image.
 
 To open a new terminal in the same container, run the following command:
 
